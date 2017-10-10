@@ -1,6 +1,7 @@
 package org.dormitory.autobotsoccub.command.result;
 
 import org.telegram.telegrambots.api.methods.send.SendMessage;
+import org.telegram.telegrambots.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.api.objects.Update;
 
 import static java.lang.String.valueOf;
@@ -8,7 +9,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class CommandResultConverter {
 
-    public static SendMessage fromCommandResult(CommandResult commandResult, Update update) {
+    public static SendMessage buildMessage(CommandResult commandResult, Update update) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(getChatId(update));
         sendMessage.setText(commandResult.getReplyMessage());
@@ -18,6 +19,14 @@ public class CommandResultConverter {
         }
 
         return sendMessage;
+    }
+
+    public static DeleteMessage buildMessage(Integer messageId, Update update) {
+        DeleteMessage deleteMessage = new DeleteMessage();
+        deleteMessage.setChatId(getChatId(update));
+        deleteMessage.setMessageId(messageId);
+
+        return deleteMessage;
     }
 
     private static String getChatId(Update update) {

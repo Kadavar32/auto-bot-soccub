@@ -1,7 +1,8 @@
 package org.dormitory.autobotsoccub.context;
 
+import net.jodah.expiringmap.ExpiringMap;
+import org.dormitory.autobotsoccub.user.RegisterMessagesPool;
 import org.dormitory.autobotsoccub.user.UserPool;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,13 +13,13 @@ import java.util.Map;
 @Configuration
 public class PoolContext {
 
-    @Value("${expirationTime ?: 15}")
-    private int expirationTime;
+    @Value("${pool.expirationMinutes ?: 15}")
+    private int expirationMinutes;
 
-    private Map<Integer, User> userPool;
+    private ExpiringMap<Integer, User> userPool;
 
     @Bean
     public UserPool userPool() {
-        return new UserPool(expirationTime, userPool);
+        return new UserPool(expirationMinutes, userPool);
     }
 }

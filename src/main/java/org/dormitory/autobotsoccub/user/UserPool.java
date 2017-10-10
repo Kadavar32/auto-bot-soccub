@@ -11,18 +11,18 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @AllArgsConstructor
-public class UserPool {
+public class UserPool{
 
     private static final int POOL_SIZE = 4;
 
-    private int expirationTime;
-    private Map<Integer, User> userPool;
+    private int expirationMinutes;
+    private ExpiringMap<Integer, User> userPool;
 
     @PostConstruct
     public void init() {
         userPool = ExpiringMap.builder()
-                .expiration(expirationTime, TimeUnit.MINUTES)
-                .expirationPolicy(ExpirationPolicy.ACCESSED)
+                .expiration(expirationMinutes, TimeUnit.MINUTES)
+                .variableExpiration()
                 .maxSize(POOL_SIZE)
                 .build();
     }
@@ -33,7 +33,7 @@ public class UserPool {
 
     public void addUser(User user) {
         if (!isFull() && !containsUser(user.getId())) {
-            userPool.put(user.getId(), user);
+            userPool.put(user.getId(), user, ExpirationPolicy.CREATED);
         }
     }
 
@@ -47,6 +47,10 @@ public class UserPool {
 
     public boolean containsUser(int userId) {
         return userPool.containsKey(userId);
+    }
+
+    public long getExpiringTime() {
+        return TimeUnit.MILLISECONDS.toMinutes(userPool.getExpectedExpiration(userPool.entrySet().iterator().next().getKey()));
     }
 
     public void removeUser(User user) {
